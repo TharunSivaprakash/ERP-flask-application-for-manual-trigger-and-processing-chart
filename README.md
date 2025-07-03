@@ -48,6 +48,12 @@ It displays a sequence of images in fullscreen mode while triggering a relay on 
 Install required Python packages:
 pip install Flask pyserial mne numpy matplotlib Pillow
 
+##  Output graph
+![ERP_P100_tmpyipaqrto](https://github.com/user-attachments/assets/80787ca6-3d8f-47a3-bd0e-9215689ade67)
+
+
 
 ```bash
 pip install Flask pyserial mne numpy matplotlib Pillow
+
+
