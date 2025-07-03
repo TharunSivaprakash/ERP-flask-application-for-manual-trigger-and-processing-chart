@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>ERP Experiment</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #191a1a;
+            background-image: linear-gradient(0deg, transparent 24%, var(--color) 25%, var(--color) 26%, transparent 27%, transparent 74%, var(--color) 75%, var(--color) 76%, transparent 77%, transparent),
+                linear-gradient(90deg, transparent 24%, var(--color) 25%, var(--color) 26%, transparent 27%, transparent 74%, var(--color) 75%, var(--color) 76%, transparent 77%, transparent);
+            background-size: 55px 55px;
+            color: turquoise;
+            --color: rgba(255, 255, 255, 0.3);
+            min-height: 100vh;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        .main-container {
+            display: flex;
+            width: 90%;
+            max-width: 1200px;
+            gap: 30px;
+            margin: 20px auto;
+        }
+        .panel {
+            flex: 1;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 24px;
+            width: 100%;
+        }
+        .stimulus-image {
+            display: none;
+            max-width: 100%;
+            margin-top: 20px;
+        }
+        button {
+            padding: 1rem 2rem;
+            font-weight: bold;
+            background: white;
+            color: blueviolet;
+            cursor: pointer;
+            border-radius: 0.5rem;
+            border-bottom: 2px solid blueviolet;
+            border-right: 2px solid blueviolet;
+            border-top: 2px solid white;
+            border-left: 2px solid white;
+            transition-duration: 1s;
+            transition-property: border-top, border-left, border-bottom, border-right, box-shadow;
+            margin: 8px;
+            min-width: 180px;
+            box-sizing: border-box;
+        }
+        button:hover {
+            border-top: 2px solid blueviolet;
+            border-left: 2px solid blueviolet;
+            border-bottom: 2px solid rgb(238, 103, 238);
+            border-right: 2px solid rgb(238, 103, 238);
+            box-shadow: rgba(240, 46, 170, 0.4) 5px 5px, rgba(240, 46, 170, 0.3) 10px 10px, rgba(240, 46, 170, 0.2) 15px 15px;
+        }
+        input[type="number"], input[type="text"] {
+            width: 120px;
+            margin-left: 10px;
+            color: black;
+            padding: 8px;
+            border-radius: 4px;
+            border: 1px solid turquoise;
+        }
+        select {
+            width: 100%;
+            padding: 8px;
+            border-radius: 4px;
+            border: 1px solid turquoise;
+            color: black;
+        }
+        select[multiple] {
+            height: 100px;
+        }
+        input[type="file"] {
+            width: 100%;
+            max-width: 100%;
+            color: #444;
+            padding: 2px;
+            background: white;
+            border-radius: 10px;
+            border: 1px solid rgba(8, 8, 8, 0.288);
+        }
+        input[type="file"]::file-selector-button {
+            margin-right: 20px;
+            border: none;
+            background: #084cdf;
+            padding: 10px 20px;
+            border-radius: 10px;
+            color: white;
+            cursor: pointer;
+            transition: background 0.2s ease-in-out;
+        }
+        input[type="file"]::file-selector-button:hover {
+            background: #0d45a5;
+        }
+        #status {
+            margin-top: 20px;
+            color: turquoise;
+            text-align: center;
+        }
+        #error {
+            margin-top: 20px;
+            color: red;
+            text-align: center;
+            white-space: pre-wrap;
+        }
+        #image-select, #csv-upload, #eeg-form {
+            width: 100%;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+        #images {
+            width: 100%;
+            max-width: 300px;
+        }
+        option {
+            color: black;
+        }
+        .button-group {
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            margin-top: 16px;
+            width: 100%;
+            flex-wrap: wrap;
+        }
+        h1, h3 {
+            text-align: center;
+            margin: 0 0 12px;
+        }
+        #manual-form {
+            display: none;
+            margin-top: 20px;
+            background: rgba(12, 12, 12, 0.2);
+            width: 100%;
+            padding: 20px;
+            border-radius: 8px;
+        }
+        .image-checkbox-container {
+            display: flex;
+            flex-direction: row;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: flex-start;
+        }
+        .image-checkbox-label {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(20, 20, 20, 0.3);
+            padding: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        .image-checkbox-label:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(1.05);
+        }
+        .image-checkbox-label input[type="checkbox"] {
+            margin: 0;
+        }
+        .image-checkbox-label img {
+            width: 40px;
+            height: 40px;
+            object-fit: cover;
+            border-radius: 4px;
+        }
+        #csvFile {
+            width: 100%;
+            max-width: 100%;
+            color: #444;
+            padding: 2px;
+            background: white;
+            border-radius: 10px;
+            border: 1px solid rgba(8, 8, 8, 0.288);
+        }
+        #csvFile::file-selector-button {
+            margin-right: 20px;
+            border: none;
+            background: #084cdf;
+            padding: 10px 20px;
+            border-radius: 10px;
+            color: white;
+            cursor: pointer;
+            transition: background 0.2s ease-in-out;
+        }
+        #csvFile::file-selector-button:hover {
+            background: #0d45a5;
+        }
+        #eeg-result {
+            margin-top: 20px;
+            width: 100%;
+            text-align: left;
+            color: turquoise;
+        }
+        .form-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            margin-bottom: 15px;
+        }
+        .form-row label {
+            min-width: 150px;
+        }
+        .controls-container {
+            width: 90%;
+            max-width: 1200px;
+            margin: 20px auto;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <h1>ERP Experiment</h1>
+    
+    <div class="main-container">
+        <!-- Left Panel - CSV Upload -->
+        <div class="panel">
+            <div class="container">
+                <h3>CSV Upload</h3>
+                <div id="csv-upload">
+                    <input type="file" id="csvFile" accept=".csv">
+                    <div class="button-group">
+                        <button onclick="uploadCSV()">Upload CSV</button>
+                        <button onclick="startSequence()">Start Sequence</button>
+                        <button onclick="showManualForm()">Manual Trigger</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Panel - EEG Processing -->
+        <div class="panel">
+            <div class="container">
+                <h3>EEG Processing</h3>
+                <div id="eeg-form">
+                    <form id="eegForm" enctype="multipart/form-data">
+                        <div class="form-row">
+                            <label>EDF File:</label>
+                            <input type="file" name="edf_file" id="edfFile" accept=".edf" required>
+                        </div>
+                        <div class="form-row">
+                            <label>ERP Signal Name:</label>
+                            <input type="text" name="signal_name" value="P100" required>
+                        </div>
+                        <div class="form-row">
+                            <label>Channels:</label>
+                            <select name="channels" id="channelSelect" multiple required>
+                                <option value="" disabled>Loading channels...</option>
+                            </select>
+                        </div>
+                        <div class="form-row">
+                            <label>Time of Interest (ms):</label>
+                            <input type="number" name="time_of_interest" value="100" required>
+                        </div>
+                        <div class="form-row">
+                            <label>Mask/Zoom:</label>
+                            <select name="maskzoom">
+                                <option value="mask" selected>Mask</option>
+                                <option value="zoom">Zoom</option>
+                            </select>
+                        </div>
+                        <div class="form-row">
+                            <label>Start of Interval (ms):</label>
+                            <input type="number" name="start" value="0">
+                        </div>
+                        <div class="form-row">
+                            <label>End of Interval (ms):</label>
+                            <input type="number" name="end" value="0">
+                        </div>
+                        <div class="button-group">
+                            <button type="button" onclick="processEEG()">Process EEG</button>
+                        </div>
+                    </form>
+                    <div id="eeg-result"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Manual Trigger Form (hidden by default) -->
+    <div id="manual-form">
+        <h3>Select Images</h3>
+        <div id="image-checkboxes"></div>
+        <div class="button-group">
+            <button onclick="submitManualTrigger()">Start Manual Sequence</button>
+        </div>
+    </div>
+
+    <!-- Status and Error Messages -->
+    <div class="controls-container">
+        <div id="status"></div>
+        <div id="error"></div>
+    </div>
+
+    <script>
+        $(document).ready(function() {
+            $('#manual-form').hide();
+            console.log('Page loaded');
+            $.get('/get_images', function(response) {
+                console.log('get_images response:', response);
+            });
+
+            // Load channels when EDF file is selected
+            $('#edfFile').on('change', function() {
+                const fileInput = this;
+                if (fileInput.files.length === 0) {
+                    $('#error').text('Please select an EDF file');
+                    $('#channelSelect').html('<option value="" disabled>Select an EDF file first</option>');
+                    return;
+                }
+
+                const formData = new FormData();
+                formData.append('edf_file', fileInput.files[0]);
+
+                $.ajax({
+                    url: '/get_edf_channels',
+                    type: 'POST',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    success: function(response) {
+                        console.log('get_edf_channels response:', response);
+                        const channelSelect = $('#channelSelect');
+                        channelSelect.empty();
+                        if (response.status === 'success' && response.channels.length > 0) {
+                            response.channels.forEach(channel => {
+                                channelSelect.append(`<option value="${channel}">${channel}</option>`);
+                            });
+                            $('#error').text('');
+                        } else {
+                            channelSelect.append('<option value="" disabled>No channels found</option>');
+                            $('#error').text(response.message || 'Failed to load channels');
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('get_edf_channels failed:', status, error);
+                        $('#channelSelect').html('<option value="" disabled>Error loading channels</option>');
+                        let errorMsg = 'Error loading EDF channels';
+                        if (xhr.responseJSON && xhr.responseJSON.message) {
+                            errorMsg += ': ' + xhr.responseJSON.message;
+                        }
+                        $('#error').text(errorMsg);
+                    }
+                });
+            });
+        });
+
+        function uploadCSV() {
+            const fileInput = document.getElementById('csvFile');
+            const file = fileInput.files[0];
+            if (!file) {
+                $('#error').text('Please select a CSV file');
+                console.error('No CSV file selected');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('csv_file', file);
+
+            console.log('Uploading CSV...');
+            $.ajax({
+                url: '/upload_csv',
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function(response) {
+                    console.log('upload_csv response:', response);
+                    if (response.status === 'success') {
+                        $('#status').text('CSV uploaded successfully');
+                        $('#error').text('');
+                    } else {
+                        $('#error').text('Error: ' + response.message);
+                        $('#status').text('');
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('CSV upload failed:', status, error);
+                    let errorMsg = 'Error uploading CSV';
+                    if (xhr.responseJSON && xhr.responseJSON.message) {
+                        errorMsg += ': ' + xhr.responseJSON.message;
+                    }
+                    $('#error').text(errorMsg);
+                    $('#status').text('');
+                }
+            });
+        }
+
+        function processEEG() {
+            const form = document.getElementById('eegForm');
+            const formData = new FormData(form);
+            console.log('Processing EEG...');
+            $('#status').text('Processing EEG...');
+            $('#eeg-result').empty();
+            $.ajax({
+                url: '/process_eeg',
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function(response) {
+                    console.log('process_eeg response:', response);
+                    if (response.status === 'success') {
+                        const resultDiv = $('#eeg-result');
+                        resultDiv.append(`
+                            <h4>Peak Information:</h4>
+                            <ul>
+                                ${response.peak_info.map(p => `
+                                    <li>${p.channel}: Latency = ${p.latency.toFixed(3)} s, 
+                                    Amplitude = ${p.amplitude.toFixed(3)} µV</li>
+                                `).join('')}
+                            </ul>
+                            <p>Exported to: ${response.exported_paths.join(', ')}</p>
+                            <p>Graph displayed in new Matplotlib window</p>
+                        `);
+                        $('#status').text('EEG processed successfully');
+                        $('#error').text('');
+                    } else {
+                        $('#error').text('Error: ' + response.message);
+                        $('#status').text('');
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('EEG processing failed:', status, error);
+                    let errorMsg = 'Error processing EEG';
+                    if (xhr.responseJSON && xhr.responseJSON.message) {
+                        errorMsg += ': ' + xhr.responseJSON.message;
+                    }
+                    $('#error').text(errorMsg);
+                    $('#status').text('');
+                }
+            });
+        }
+
+        function startSequence() {
+            console.log('Starting sequence...');
+            $.get('/start_sequence', function(response) {
+                console.log('start_sequence response:', response);
+                if (response.status === 'success') {
+                    $('#status').text(response.message);
+                    $('#error').text('');
+                    window.location.href = '/fullscreen?repeat=' + response.current_repeat + '&total=' + response.total_repeats;
+                } else {
+                    $('#error').text('Error: ' + response.message);
+                    $('#status').text('');
+                }
+            }).fail(function(xhr, status, error) {
+                console.error('start_sequence failed:', status, error);
+                let errorMsg = 'Error starting sequence';
+                if (xhr.responseJSON && xhr.responseJSON.message) {
+                    errorMsg += ': ' + xhr.responseJSON.message;
+                }
+                $('#error').text(errorMsg);
+                $('#status').text('');
+            });
+        }
+
+        function showManualForm() {
+            $('#manual-form').show();
+            $('#manual-form').empty();
+            $('#manual-form').append(`
+                <h3>Select Images</h3>
+                <div id="image-checkboxes"></div>
+                <div class="button-group">
+                    <button onclick="submitManualTrigger()">Start Manual Sequence</button>
+                </div>
+            `);
+            console.log('Fetching images for manual trigger...');
+            $.get('/get_images', function(response) {
+                console.log('get_images response:', response);
+                if (response.status === 'success') {
+                    const container = $('#image-checkboxes');
+                    container.empty();
+                    response.images.forEach(img => {
+                        container.append(`
+                            <div class="image-checkbox-label">
+                                <label>
+                                    <input type="checkbox" class="image-checkbox" value="${img}">
+                                    <img src="/static/${img}" alt="${img}">
+                                    ${img}
+                                    <input type="number" class="repeat-count" data-image="${img}" min="1" placeholder="Repeats" value="1">
+                                    <input type="number" class="duration" data-image="${img}" min="0.1" step="0.1" placeholder="Duration (s)" value="2">
+                                    <input type="checkbox" class="trigger" data-image="${img}" checked> Trigger
+                                </label>
+                            </div>
+                        `);
+                    });
+                } else {
+                    $('#error').text('Error loading images: ' + response.message);
+                    $('#status').text('');
+                    console.error('Failed to load images:', response.message);
+                }
+            }).fail(function(xhr, status, error) {
+                console.error('get_images failed:', status, error);
+                let errorMsg = 'Error loading images';
+                if (xhr.responseJSON && xhr.responseJSON.message) {
+                    errorMsg += ': ' + xhr.responseJSON.message;
+                }
+                $('#error').text(errorMsg);
+                $('#status').text('');
+            });
+        }
+
+        function submitManualTrigger() {
+            const selections = [];
+            $('.image-checkbox:checked').each(function() {
+                const image = $(this).val();
+                const repeat = $(`.repeat-count[data-image="${image}"]`).val();
+                const duration = $(`.duration[data-image="${image}"]`).val();
+                const trigger = $(`.trigger[data-image="${image}"]`).is(':checked');
+                if (repeat && duration) {
+                    selections.push({ image: image, repeat: repeat, duration: duration, trigger: trigger });
+                }
+            });
+
+            if (selections.length < 2) {
+                $('#error').text('Please select at least two images with repeat counts and durations');
+                $('#status').text('');
+                console.error('Less than two images selected');
+                return;
+            }
+
+            console.log('Submitting manual trigger:', selections);
+            $.ajax({
+                url: '/manual_trigger',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({ selections: selections }),
+                success: function(response) {
+                    console.log('manual_trigger response:', response);
+                    if (response.status === 'success') {
+                        $('#status').text('Manual sequence started');
+                        $('#error').text('');
+                        $('#manual-form').hide();
+                        window.location.href = '/fullscreen?repeat=' + response.current_repeat + '&total=' + response.total_repeats;
+                    } else {
+                        $('#error').text('Error: ' + response.message);
+                        $('#status').text('');
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('manual_trigger failed:', status, error);
+                    let errorMsg = 'Error starting manual sequence';
+                    if (xhr.responseJSON && xhr.responseJSON.message) {
+                        errorMsg += ': ' + xhr.responseJSON.message;
+                    }
+                    $('#error').text(errorMsg);
+                    $('#status').text('');
+                }
+            });
+        }
+    </script>
+</body>
+</html>

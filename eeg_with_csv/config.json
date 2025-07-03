@@ -1,0 +1,7 @@
+{
+    "SERIAL_PORT": "COM5",
+    "BAUD_RATE": 9600,
+    "PULSE_DURATION": 0.05,
+    "EDF_FOLDER": "Y:\\Behavioural Tasks\\ERP\\EEG-Raw data\\P100",
+    "UPLOAD_FOLDER": "uploads"
+}
